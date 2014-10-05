@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Facebook Login JavaScript Example</title>
+<meta charset="UTF-8">
+</head>
+<body>
+<script>
+  // This is called with the results from from FB.getLoginStatus().
+  function statusChangeCallback(response) {
+    console.log('statusChangeCallback');
+    console.log(response);
+    // The response object is returned with a status field that lets the
+    // app know the current login status of the person.
+    // Full docs on the response object can be found in the documentation
+    // for FB.getLoginStatus().
+    if (response.status === 'connected') {
+      // Logged into your app and Facebook.
+      testAPI();
+      getGroup();
+    } else if (response.status === 'not_authorized') {
+      // The person is logged into Facebook, but not your app.
+      document.getElementById('status').innerHTML = 'Please log ' +
+        'into this app.';
+    } else {
+      // The person is not logged into Facebook, so we're not sure if
+      // they are logged into this app or not.
+      document.getElementById('status').innerHTML = 'Please log ' +
+        'into Facebook.';
+    }
+  }
+
+  // This function is called when someone finishes with the Login
+  // Button.  See the onlogin handler attached to it in the sample
+  // code below.
+  function checkLoginState() {
+    FB.getLoginStatus(function(response) {
+      statusChangeCallback(response);
+    });
+  }
+
+  window.fbAsyncInit = function() {
+  FB.init({
+    appId      : '1485158685075472',
+    cookie     : true,  // enable cookies to allow the server to access 
+                        // the session
+    xfbml      : true,  // parse social plugins on this page
+    version    : 'v2.1' // use version 2.1
+  });
+  FB.login(function(){}, {scope: 'publish_actions'});
+  // Now that we've initialized the JavaScript SDK, we call 
+  // FB.getLoginStatus().  This function gets the state of the
+  // person visiting this page and can return one of three states to
+  // the callback you provide.  They can be:
+  //
+  // 1. Logged into your app ('connected')
+  // 2. Logged into Facebook, but not your app ('not_authorized')
+  // 3. Not logged into Facebook and can't tell if they are logged into
+  //    your app or not.
+  //
+  // These three cases are handled in the callback function.
+
+  FB.getLoginStatus(function(response) {
+    statusChangeCallback(response);
+  });
+
+  };
+
+  // Load the SDK asynchronously
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/sdk.js";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+
+  // Here we run a very simple test of the Graph API after login is
+  // successful.  See statusChangeCallback() for when this call is made.
+   function testAPI() {
+    console.log('Welcome!  Fetching your information.... ');
+    FB.api('/me', function(response) {
+      console.log('Successful login for: ' + response.name);
+      document.getElementById('status').innerHTML =
+        'Thanks for logging in, ' + response.name + '!';
+    });
+  } 
+  
+  
+  
+   var groupName = [];
+  //Get all groups of the user and put them into the group linklist
+  function getGroup(){
+	  console.log('Welcome!  Fetching your information.... ');
+  FB.api(
+		  '/me/groups', function(response) {
+		      if (response && !response.error) {
+		          /* handle the result */
+		          console.log('Successful login for: ' + response.name);
+		          
+		          
+		          for(var i = 0; i < response.data.length; i++){
+		        	  
+		        	  var p1 = response.data[i].id;
+		        	  var number = 0;
+		        	  groupName.push(response.data[i].name);
+		        	  var group = new Group(p1, response.data[i].name, response.data[i].description, response.data[i].cover);
+		        	  groupList.Insert(group);
+		        	  
+		        	getMember(p1, i);
+		                      	  
+		          }
+		          
+		        }
+		      else{
+		    	 document.getElementById('Error').innerHTML = response.getError.getErrorMessage(); 
+		      }
+		      });
+  }
+ 
+  var groupNumber = [];
+
+  //Get all members in a group and store them in the linklist
+   function getMember(p1, i){
+	  console.log('Welcome!  Fetching your information.... ');
+	
+      FB.api(
+    		  '/' + p1.toString() + '/members', function(response){
+    	  if (response && !response.error){
+    	  console.log('Successful login for: ' + response.name);
+    	  document.getElementById("test").innerHTML = response.data.length;
+    	  groupNumber.push(response.data.length);
+    	  document.getElementById("test").innerHTML = groupNumber;
+    	  for(var i = 0; i < response.data.length; i++){
+    		  var member = new Member(reponse.data[i].id, response.data[i].name, response.data[i].cover);
+    		  groupList.getData(i).addMember(member);
+    		  number++;
+    	  }
+    	  groupList.getData(i).addNumber(number);
+    	  }
+    	  else{
+    	  document.getElementById('Error').innerHTML = response.getError.getErrorMessage(); 
+    	  }
+      });
+  } 
+
+  //Define the data structure of single linklist
+  var Node = function(newData){  
+        this.next = null;  
+        this.data = null;  
+        this.Init = function(){  
+            this.data = newData;  
+        };  
+        this.Init();  
+    }  
+    //definition of List class   
+    var List = function(){  
+        this.head = null;  
+        this.size = 0;  
+        this.Init = function(){  
+            this.head = null;  
+            this.size = 0;  
+        }  
+        this.Init();  
+          
+        this.Insert = function(newData){  
+            this.size += 1;  
+            var newNode = new Node(newData);  
+            if(this.head == null){  
+                this.head = newNode;  
+                return;  
+            }  
+            var tempNode = this.head;  
+            while(tempNode.next != null)  
+                tempNode = tempNode.next;  
+            tempNode.next = newNode;  
+        };  
+          
+        this.getData = function(pos){  
+            if(pos >= this.size || pos < 0)  
+                return null;    
+            else{  
+                tempNode = this.head;  
+                for(i = 0;i < pos;i++)    
+                    tempNode = tempNode.next;    
+                return tempNode.data;    
+             }  
+        }
+    };  
+      
+        
+      //The linklist of the user's groups
+        groupList = new List();
+        
+        //Define the class of group
+        var Group = function(id, name, description, cover)
+        {
+        	this.id = id;
+        	this.name = name;
+        	this.description = description;
+        
+        	this.cover = cover;
+        	this.addMember = function(member){
+        		this.member = member;
+        	}
+        	this.addNumber = function(number){
+        		this.number = number;
+        	} 
+        }
+        //Define the class of member
+        var Member = function(id, name, photo){
+        	this.id = id;
+        	this.name = name;
+        	this.photo = photo;
+        }
+        
+        //functions for testing
+        function showGroupList(){
+        	document.getElementById("test").innerHTML = groupList.size;
+        	for(i = 0; i < groupList.size; i++){
+        	var li = document.createElement('li');
+        	li.innerHTML = groupName[i] + groupNumber[i];
+        	list.appendChild(li);
+        	}
+        }
+        
+</script>
+
+<!--
+  Below we include the Login Button social plugin. This button uses
+  the JavaScript SDK to present a graphical Login button that triggers
+  the FB.login() function when clicked.
+-->
+
+<fb:login-button scope="public_profile,user_groups" onlogin="checkLoginState();">
+</fb:login-button>
+<input type = 'button' name = 'testGroupList' value = 'test group list' onclick = 'showGroupList()'>
+<div id="status">
+</div>
+<ul	id = "list"></ul>
+
+<p id = "Error">error</p>
+<p id = "test">test</p>
+</body>
+</html>
