@@ -1,66 +1,15 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
-<body> 
- <style>
-.link {
-stroke: #666;
-opacity: 0.9;
-stroke-width: 1.5px;
-}
-.node circle {
-stroke: #fff;
-opacity: 0.9;
-stroke-width: 1.5px;
-}
-.node:not(:hover) .nodetext {
-display: none;
-}
-text {
-font: 7px serif;
-opacity: 0.9;
-pointer-events: none;
-}
-</style>
-
-<!--
-  Below we include the Login Button social plugin. This button uses
-  the JavaScript SDK to present a graphical Login button that triggers
-  the FB.login() function when clicked.
--->
-
-<fb:login-button scope="public_profile,user_groups" onlogin="checkLoginState();">
-</fb:login-button>
-<input type = 'button' name = 'testGroupList' value = 'test group list' onclick = 'showGroupList(); makeCircle()'>
-
-
-<div id="status">
-</div>
-<ul	id = "list"></ul>
-
-<p id = "Error"></p>
-<p id = "test"></p>
-<script src=http://d3js.org/d3.v3.min.js></script>
+<html>
+<head>
+<title>Facebook Login JavaScript Example</title>
+<meta charset="UTF-8">
+</head>
+<body>
+ 
 <script>
-     //Total number of members in this group;
-     var groupNumber = [];
-     
-     //Array of group names
-     var groupName = [];
-     
-     //Array of group description
-     var groupDescription = [];
-     
-     //The two dimension array of the members in groups, if you want to get the covers of members please use the version in 174-175
-     var groupMember = [];
-     
-     //The array of the cover of groups, if you do not want to use them please delete this and line 207
-     var groupCover = [];
-
-  
   // This is called with the results from from FB.getLoginStatus().
   function statusChangeCallback(response) {
-    //alert("fuck");
-	console.log('statusChangeCallback');
+    console.log('statusChangeCallback');
     console.log(response);
     // The response object is returned with a status field that lets the
     // app know the current login status of the person.
@@ -86,7 +35,6 @@ pointer-events: none;
   // Button.  See the onlogin handler attached to it in the sample
   // code below.
   function checkLoginState() {
-  //alert("fuck2");
     FB.getLoginStatus(function(response) {
       statusChangeCallback(response);
     });
@@ -132,11 +80,11 @@ pointer-events: none;
   // successful.  See statusChangeCallback() for when this call is made.
    function testAPI() {
     console.log('Welcome!  Fetching your information.... ');
-    /*FB.api('/me', function(response) {
+    FB.api('/me', function(response) {
       console.log('Successful login for: ' + response.name);
       document.getElementById('status').innerHTML =
         'Thanks for logging in, ' + response.name + '!';
-    });*/
+    });
   } 
   
  //Define the data structure of single linklist
@@ -204,7 +152,20 @@ pointer-events: none;
      //Refer to line 225 for examples of getting data from this data structure
      
      
-
+     //Total number of members in this group;
+     var groupNumber = [];
+     
+     //Array of group names
+     var groupName = [];
+     
+     //Array of group description
+     var groupDescription = [];
+     
+     //The two dimension array of the members in groups, if you want to get the covers of members please use the version in 174-175
+     var groupMember = [];
+     
+     //The array of the cover of groups, if you do not want to use them please delete this and line 207
+     var groupCover = [];
      
      //Get all members in a group
       function getMember(id, i){
@@ -213,7 +174,7 @@ pointer-events: none;
          FB.api(
        		  '/' + id.toString() + '/members', function(response){
        	  if (response && !response.error){
-       	 // console.log('Successful login for: ' + response.name);
+       	  console.log('Successful login for: ' + response.name);
        	  var number = response.data.length;
        	  for(j = 0; j < number; j++){
        		  //Basic Version
@@ -225,7 +186,6 @@ pointer-events: none;
        		  
        	  }
        	  groupNumber.push({id: i, value: number});
-		  
 
        	  }
        	  else{
@@ -259,121 +219,37 @@ pointer-events: none;
 		      });
   }
 
+
         
         //functions for testing
         function showGroupList(){
-				document.getElementById("test").innerHTML = groupName[6] + " "+ searchArray(groupNumber, 6) + " "  + searchMember(groupMember, 0, 7);
-				
-		}
-	
-		
-		function vals(name, group, size)
-		{
-			this.name = name;
-			this.group = group;
-			this.size = size;
-		}
-		
-		function vals_links(source, target, value)
-		{
-			this.source = source;
-			this.target = target;
-			this.value = value;
-		}
-		
-			var nodes = [];
-			var width;
-			var height;
-			var color;
-			var force;
-			var svg;
-			var links = [];
-			
-		function makeCircle(){
-			links.push(new vals_links(2, 5, 10));
-		
-			for(i = 0; i < 20; i++)
-			{
-				nodes.push(new vals(groupName[i], 1,searchArray(groupNumber, i)));
-				
-			}
-			alert("done with this shit");
-			
-		
-  width = 1000;
-height = 1000;
-
-color = d3.scale.category20();
-
-force = d3.layout.force()
-.nodes(d3.values(nodes))
-.links(links)
-.size([width, height])
-.linkDistance(50)
-.charge(-120)
-.on("tick", tick)
-.start();
-
-svg = d3.select("body").append("svg")
-.attr("width", width)
-.attr("height", height);
-
-var link = svg.selectAll(".link")
-.data(force.links())
-.enter().append("line")
-.attr("class", "link")
-.style("stroke-width", function(d) { return Math.sqrt(d.value); });
-
-alert("doing this now");
-var node = svg.selectAll(".node")
-.data(force.nodes())
-.enter().append("g")
-.attr("class", "node")
-.style("fill", function(d) { return color(d.group); })
-.style("opacity", 0.9)
-.on("mouseover", mouseover)
-.on("mouseout", mouseout)
-.call(force.drag);
-
-node.append("circle")
-.attr("r",  function(d) { return (d.size); });
-	
-	
-node.append("svg:text")
-.attr("class", "nodetext")
-.attr("dx", 12)
-.attr("dy", ".35em")
-.text(function(d) { return d.name });
+				document.getElementById("test").innerHTML = groupName[6] + " " + searchArray(groupNumber, 6) + " "  + searchMember(groupMember, 0, 7);
+        }
 
 
-function tick() {
-link
-.attr("x1", function(d) { return d.source.x; })
-.attr("y1", function(d) { return d.source.y; })
-.attr("x2", function(d) { return d.target.x; })
-.attr("y2", function(d) { return d.target.y; });
 
-node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-}
-}
-function mouseover() {
-d3.select(this).select("circle").transition()
-.duration(750)
-.attr("r", function(d) { return (d.size + 12); });
-d3.select(this).select("text").transition()
-.duration(750)
-.attr("x", 13)
-.style("stroke-width", ".5px")
-.style("font", "17.5px serif")
-.style("opacity", 1);
-}
-
-function mouseout() {
-d3.select(this).select("circle").transition()
-.duration(750)
-.attr("r",  function(d) { return (d.size); });
-}
-
+        
 </script>
+
+<!--
+  Below we include the Login Button social plugin. This button uses
+  the JavaScript SDK to present a graphical Login button that triggers
+  the FB.login() function when clicked.
+-->
+
+<fb:login-button scope="public_profile,user_groups" onlogin="checkLoginState();">
+</fb:login-button>
+<input type = 'button' name = 'testGroupList' value = 'test group list' onclick = 'showGroupList()'>
+
+<div id="status">
+</div>
+<ul	id = "list"></ul>
+
+<p id = "Error"></p>
+<p id = "test">test</p>
+
+
+
+
 </body>
 </html>
